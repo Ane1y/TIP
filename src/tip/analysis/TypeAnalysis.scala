@@ -111,8 +111,12 @@ class TypeAnalysis(program: AProgram)(implicit declData: DeclarationData) extend
         as.left match {
           case id: AIdentifier   => unify(id, as.right)
           case dw: ADerefWrite => unify(dw.exp, PointerType(as.right))
-          case dfw: ADirectFieldWrite => unify(dfw.id, as.right)
-          case ifw: AIndirectFieldWrite => unify(ifw.exp, as.right)
+          case dfw: ADirectFieldWrite =>  // d.b = *p
+            val lst = allFieldNames.map{name => if (dfw.field == name) as.right: Term[Type] else FreshVarType()}
+            unify(dfw.id, RecordType(lst))
+          case ifw: AIndirectFieldWrite => // (*x.bip).bop
+            val lst = allFieldNames.map{name => if (ifw.field == name) as.right: Term[Type] else FreshVarType()}
+            unify(ifw.exp, PointerType(RecordType(lst)))
         }
       case bin: ABinaryOp =>
         bin.operator match {
