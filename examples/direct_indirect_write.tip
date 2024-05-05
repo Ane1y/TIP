@@ -1,0 +1,11 @@
+f(){
+    // direct
+    var d, z, m, x;
+    d = {a: 5, b: alloc 9};
+    d.b = m;
+
+    // indirect
+    x = {ptr: &d, n: 10};
+    (*x.ptr).a = 9;
+    return d;
+}
